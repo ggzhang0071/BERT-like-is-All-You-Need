@@ -5,7 +5,7 @@ import numpy as np
 import sys
 import torch
 
-from .import FairseqDataset
+from fairseq.data import FairseqDataset
 import random
 
 import cv2
@@ -19,9 +19,6 @@ class RawAudioTextDataset(FairseqDataset):
     def __init__(self, base_path,data_args,data_split,sample_rate, max_sample_size=None, min_sample_size=None,
                  shuffle=True):
         super().__init__()
-
-
-      
 
         self.data_args=data_args
 
