@@ -11,10 +11,12 @@ from fairseq.models import MODEL_REGISTRY
 
 
 dependencies = [
-    'numpy',
-    'regex',
-    'requests',
-    'torch',
+    "hydra",
+    "numpy",
+    "omegaconf",
+    "regex",
+    "requests",
+    "torch",
 ]
 
 
