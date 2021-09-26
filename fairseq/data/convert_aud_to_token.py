@@ -39,11 +39,9 @@ class EmotionDataPreprocessing():
         return "<s>"+" " +" ".join("-".join(map(str, a.tolist())) for a in idxs.squeeze(0))
         
 
-    def preprocess_audio_file(self,filename):
-        
-        wav, curr_sample_rate = sf.read(filename)
+    def preprocess_audio_file(self,truncated_wav_vector):
 
-        feats_audio =torch.from_numpy(np.mean(wav,axis=1)).float()
+        feats_audio =torch.from_numpy(truncated_wav_vector).float()
         
         #feats_audio =torch.load(filename)#if you direclty using .pt files
         
@@ -89,5 +87,6 @@ if __name__ == "__main__":
     """audio_path="/git/datasets/IEMOCAP_full_release/Session2/dialog/wav/"
     text_path = '/git/datasets/IEMOCAP_full_release/Session2/dialog/transcriptions/'"""
     audio_path="/git/datasets/IEMOCAP_full_release/Session1/dialog/wav/Ses01M_impro02.wav"
-    data_processor.preprocess_audio_data(audio_path)
+    wav, curr_sample_rate = sf.read(audio_path)
+    data_processor.preprocess_audio_data(wav)
 

@@ -16,7 +16,7 @@ import  warnings
 warnings.filterwarnings("ignore")
 
 
-def build_audio_vectors(labels_path,orig_wav_file):
+def build_audio_vectors(labels_path,orig_wav_file,pre_processed):
     """if self.preprocessed:
                   data_processor = EmotionDataPreprocessing()
                   audio_signal=data_processor.preprocess_data(audio_name)
@@ -37,6 +37,9 @@ def build_audio_vectors(labels_path,orig_wav_file):
         start_frame = math.floor(start_time * sr)
         end_frame = math.floor(end_time * sr)
         truncated_wav_vector = orig_wav_vector[start_frame:end_frame + 1]
+        if pre_processed:
+            data_processor = EmotionDataPreprocessing()
+            truncated_wav_vector=data_processor.preprocess_audio_data(truncated_wav_vector)
         audio_vectors[truncated_wav_file_name] = truncated_wav_vector
         emotion_label[truncated_wav_file_name] = emotion
     return  audio_vectors, emotion_label
@@ -67,6 +70,6 @@ def  build_text_vectors(orig_wav_file):
 if __name__=="__main__":
     labels_path = 'data/df_iemocap.csv'
     iemocap_path = '/git/datasets/IEMOCAP_full_release/Session1/dialog/wav/Ses01M_impro02.wav'
-    audio_vectors,emotion=build_audio_vectors(labels_path,iemocap_path)
+    audio_vectors,emotion=build_audio_vectors(labels_path,iemocap_path,False)
     file2transcriptions=build_text_vectors(iemocap_path)
-    print(audio_vectors,emotion)
+    #print(audio_vectors.shape,emotion)

@@ -3,16 +3,14 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import os
+import os,sys
 import logging
-
 import numpy as np
 
-from fairseq.data import (
-    RawAudioTextDataset
-)
+sys.path.append("/git/BERT-like-is-All-You-Need/fairseq/data")
 
 
+from raw_audio_text_dataset import RawAudioTextDataset
 
 from fairseq.tasks import FairseqTask, register_task
 
@@ -99,6 +97,7 @@ class EmotionPredictionTask(FairseqTask):
                                                sample_rate=self.args.sample_rate,
                                                max_sample_size=self.args.max_sample_size,
                                                min_sample_size=self.args.min_sample_size)
+        
 
 
       

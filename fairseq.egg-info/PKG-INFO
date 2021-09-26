@@ -4,177 +4,103 @@ Version: 0.9.0
 Summary: Facebook AI Research Sequence-to-Sequence Toolkit
 Home-page: https://github.com/pytorch/fairseq
 License: UNKNOWN
-Description: <p align="center">
-          <img src="fairseq_logo.png" width="150">
-          <br />
-          <br />
-          <a href="https://github.com/pytorch/fairseq/blob/master/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
-          <a href="https://github.com/pytorch/fairseq/releases"><img alt="Latest Release" src="https://img.shields.io/github/release/pytorch/fairseq.svg" /></a>
-          <a href="https://github.com/pytorch/fairseq/actions?query=workflow:build"><img alt="Build Status" src="https://github.com/pytorch/fairseq/workflows/build/badge.svg" /></a>
-          <a href="https://fairseq.readthedocs.io/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/fairseq/badge/?version=latest" /></a>
-        </p>
-        
-        --------------------------------------------------------------------------------
-        
-        Fairseq(-py) is a sequence modeling toolkit that allows researchers and
-        developers to train custom models for translation, summarization, language
-        modeling and other text generation tasks.
-        
-        ### What's New:
-        
-        - March 2020: [Byte-level BPE code released](examples/byte_level_bpe/README.md)
-        - February 2020: [mBART model and code released](examples/mbart/README.md)
-        - February 2020: [Added tutorial for back-translation](https://github.com/pytorch/fairseq/tree/master/examples/backtranslation#training-your-own-model-wmt18-english-german)
-        - December 2019: [fairseq 0.9.0 released](https://github.com/pytorch/fairseq/releases/tag/v0.9.0)
-        - November 2019: [VizSeq released (a visual analysis toolkit for evaluating fairseq models)](https://facebookresearch.github.io/vizseq/docs/getting_started/fairseq_example)
-        - November 2019: [CamemBERT model and code released](examples/camembert/README.md)
-        - November 2019: [BART model and code released](examples/bart/README.md)
-        - November 2019: [XLM-R models and code released](examples/xlmr/README.md)
-        - September 2019: [Nonautoregressive translation code released](examples/nonautoregressive_translation/README.md)
-        - August 2019: [WMT'19 models released](examples/wmt19/README.md)
-        - July 2019: fairseq relicensed under MIT license
-        - July 2019: [RoBERTa models and code released](examples/roberta/README.md)
-        - June 2019: [wav2vec models and code released](examples/wav2vec/README.md)
-        
-        ### Features:
-        
-        Fairseq provides reference implementations of various sequence-to-sequence models, including:
-        - **Convolutional Neural Networks (CNN)**
-          - [Language Modeling with Gated Convolutional Networks (Dauphin et al., 2017)](examples/language_model/conv_lm/README.md)
-          - [Convolutional Sequence to Sequence Learning (Gehring et al., 2017)](examples/conv_seq2seq/README.md)
-          - [Classical Structured Prediction Losses for Sequence to Sequence Learning (Edunov et al., 2018)](https://github.com/pytorch/fairseq/tree/classic_seqlevel)
-          - [Hierarchical Neural Story Generation (Fan et al., 2018)](examples/stories/README.md)
-          - [wav2vec: Unsupervised Pre-training for Speech Recognition (Schneider et al., 2019)](examples/wav2vec/README.md)
-        - **LightConv and DynamicConv models**
-          - [Pay Less Attention with Lightweight and Dynamic Convolutions (Wu et al., 2019)](examples/pay_less_attention_paper/README.md)
-        - **Long Short-Term Memory (LSTM) networks**
-          - Effective Approaches to Attention-based Neural Machine Translation (Luong et al., 2015)
-        - **Transformer (self-attention) networks**
-          - Attention Is All You Need (Vaswani et al., 2017)
-          - [Scaling Neural Machine Translation (Ott et al., 2018)](examples/scaling_nmt/README.md)
-          - [Understanding Back-Translation at Scale (Edunov et al., 2018)](examples/backtranslation/README.md)
-          - [Adaptive Input Representations for Neural Language Modeling (Baevski and Auli, 2018)](examples/language_model/transformer_lm/README.md)
-          - [Mixture Models for Diverse Machine Translation: Tricks of the Trade (Shen et al., 2019)](examples/translation_moe/README.md)
-          - [RoBERTa: A Robustly Optimized BERT Pretraining Approach (Liu et al., 2019)](examples/roberta/README.md)
-          - [Facebook FAIR's WMT19 News Translation Task Submission (Ng et al., 2019)](examples/wmt19/README.md)
-          - [Jointly Learning to Align and Translate with Transformer Models (Garg et al., 2019)](examples/joint_alignment_translation/README.md )
-          - [Multilingual Denoising Pre-training for Neural Machine Translation (Liu et at., 2020)](examples/mbart/README.md)
-          - [Neural Machine Translation with Byte-Level Subwords (Wang et al., 2020)](examples/byte_level_bpe/README.md)
-        - **Non-autoregressive Transformers**
-          - Non-Autoregressive Neural Machine Translation (Gu et al., 2017)
-          - Deterministic Non-Autoregressive Neural Sequence Modeling by Iterative Refinement (Lee et al. 2018)
-          - Insertion Transformer: Flexible Sequence Generation via Insertion Operations (Stern et al. 2019)
-          - Mask-Predict: Parallel Decoding of Conditional Masked Language Models (Ghazvininejad et al., 2019)
-          - [Levenshtein Transformer (Gu et al., 2019)](examples/nonautoregressive_translation/README.md)
-        
-        
-        **Additionally:**
-        - multi-GPU (distributed) training on one machine or across multiple machines
-        - fast generation on both CPU and GPU with multiple search algorithms implemented:
-          - beam search
-          - Diverse Beam Search ([Vijayakumar et al., 2016](https://arxiv.org/abs/1610.02424))
-          - sampling (unconstrained, top-k and top-p/nucleus)
-        - large mini-batch training even on a single GPU via delayed updates
-        - mixed precision training (trains faster with less GPU memory on [NVIDIA tensor cores](https://developer.nvidia.com/tensor-cores))
-        - extensible: easily register new models, criterions, tasks, optimizers and learning rate schedulers
-        
-        We also provide [pre-trained models for translation and language modeling](#pre-trained-models-and-examples)
-        with a convenient `torch.hub` interface:
-        ```python
-        en2de = torch.hub.load('pytorch/fairseq', 'transformer.wmt19.en-de.single_model')
-        en2de.translate('Hello world', beam=5)
-        # 'Hallo Welt'
-        ```
-        See the PyTorch Hub tutorials for [translation](https://pytorch.org/hub/pytorch_fairseq_translation/)
-        and [RoBERTa](https://pytorch.org/hub/pytorch_fairseq_roberta/) for more examples.
-        
-        ![Model](fairseq.gif)
-        
-        # Requirements and Installation
-        
-        * [PyTorch](http://pytorch.org/) version >= 1.4.0
-        * Python version >= 3.6
-        * For training new models, you'll also need an NVIDIA GPU and [NCCL](https://github.com/NVIDIA/nccl)
-        * **For faster training** install NVIDIA's [apex](https://github.com/NVIDIA/apex) library with the `--cuda_ext` and `--deprecated_fused_adam` options
-        
-        To install fairseq:
-        ```bash
-        pip install fairseq
-        ```
-        
-        On MacOS:
-        ```bash
-        CFLAGS="-stdlib=libc++" pip install fairseq
-        ```
-        
-        If you use Docker make sure to increase the shared memory size either with
-        `--ipc=host` or `--shm-size` as command line options to `nvidia-docker run`.
-        
-        **Installing from source**
-        
-        To install fairseq from source and develop locally:
-        ```bash
-        git clone https://github.com/pytorch/fairseq
-        cd fairseq
-        pip install --editable .
-        ```
-        
-        # Getting Started
-        
-        The [full documentation](https://fairseq.readthedocs.io/) contains instructions
-        for getting started, training new models and extending fairseq with new model
-        types and tasks.
-        
-        # Pre-trained models and examples
-        
-        We provide pre-trained models and pre-processed, binarized test sets for several tasks listed below,
-        as well as example training and evaluation commands.
-        
-        - [Translation](examples/translation/README.md): convolutional and transformer models are available
-        - [Language Modeling](examples/language_model/README.md): convolutional and transformer models are available
-        - [wav2vec](examples/wav2vec/README.md): wav2vec large model is available
-        
-        We also have more detailed READMEs to reproduce results from specific papers:
-        - [Neural Machine Translation with Byte-Level Subwords (Wang et al., 2020)](examples/byte_level_bpe/README.md)
-        - [Jointly Learning to Align and Translate with Transformer Models (Garg et al., 2019)](examples/joint_alignment_translation/README.md )
-        - [Levenshtein Transformer (Gu et al., 2019)](examples/nonautoregressive_translation/README.md)
-        - [Facebook FAIR's WMT19 News Translation Task Submission (Ng et al., 2019)](examples/wmt19/README.md)
-        - [RoBERTa: A Robustly Optimized BERT Pretraining Approach (Liu et al., 2019)](examples/roberta/README.md)
-        - [wav2vec: Unsupervised Pre-training for Speech Recognition (Schneider et al., 2019)](examples/wav2vec/README.md)
-        - [Mixture Models for Diverse Machine Translation: Tricks of the Trade (Shen et al., 2019)](examples/translation_moe/README.md)
-        - [Pay Less Attention with Lightweight and Dynamic Convolutions (Wu et al., 2019)](examples/pay_less_attention_paper/README.md)
-        - [Understanding Back-Translation at Scale (Edunov et al., 2018)](examples/backtranslation/README.md)
-        - [Classical Structured Prediction Losses for Sequence to Sequence Learning (Edunov et al., 2018)](https://github.com/pytorch/fairseq/tree/classic_seqlevel)
-        - [Hierarchical Neural Story Generation (Fan et al., 2018)](examples/stories/README.md)
-        - [Scaling Neural Machine Translation (Ott et al., 2018)](examples/scaling_nmt/README.md)
-        - [Convolutional Sequence to Sequence Learning (Gehring et al., 2017)](examples/conv_seq2seq/README.md)
-        - [Language Modeling with Gated Convolutional Networks (Dauphin et al., 2017)](examples/language_model/conv_lm/README.md)
-        
-        # Join the fairseq community
-        
-        * Facebook page: https://www.facebook.com/groups/fairseq.users
-        * Google group: https://groups.google.com/forum/#!forum/fairseq-users
-        
-        # License
-        fairseq(-py) is MIT-licensed.
-        The license applies to the pre-trained models as well.
-        
-        # Citation
-        
-        Please cite as:
-        
-        ```bibtex
-        @inproceedings{ott2019fairseq,
-          title = {fairseq: A Fast, Extensible Toolkit for Sequence Modeling},
-          author = {Myle Ott and Sergey Edunov and Alexei Baevski and Angela Fan and Sam Gross and Nathan Ng and David Grangier and Michael Auli},
-          booktitle = {Proceedings of NAACL-HLT 2019: Demonstrations},
-          year = {2019},
-        }
-        ```
-        
 Platform: UNKNOWN
 Classifier: Intended Audience :: Science/Research
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Programming Language :: Python :: 3.6
 Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
 Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# [Jointly Fine-Tuning “BERT-like” Self Supervised Models to Improve Multimodal Speech Emotion Recognition](https://arxiv.org/abs/2008.06682)
+
+![Model Overviw](https://github.com/shamanez/BERT-like-is-All-You-Need/blob/master/pipeline.jpg)
+
+This repositary consist the pytorch code for Multimodal Emotion Recogntion with pretreined Roberta and Speech-BERT.
+
+
+# Basic strucutre of the code
+
+## Inspiration from fairseq
+
+1. This code strcuture is built on top of Faiseq interface
+2. Fairseq is an open source project by FacebookAI team that combined different SOTA architectures for sequencial data processing
+3. This also consist of SOTA optimizing mechanisms such as ealry stopage, warup learnign rates, learning rate shedulers
+4. We are trying to develop our own architecture in compatible with fairseq interface. 
+5. For more understanding please read the [paper](https://arxiv.org/abs/1904.01038) published about Fairseq interaface.
+
+## Merging of our own architecture with Fairseq interface
+
+1. This can be bit tricky in the beggining. First  it is important to udnestand that Fairseq has built in a way that all architectures can be access through the terminal commands (args).
+
+2. Since our architecture has lot of properties in tranformer architecture, we followed the [a tutorial](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.custom_classification.md) that describe to use Roberta for the custom classification task.
+
+3. We build over archtiecture by inserting new stuff to following directories in Fairseq interfeace.
+   - fairseq/data
+   - fairseq/models
+   - fairseq/modules
+   - fairseq/tasks
+   - fairseq/criterions
+
+
+# Main scripts of the code
+
+## Our main scripts are categorized in to for parts
+
+1. Custom dataloader for load raw audio, faceframes and text is in the **fairseq/data/raw_audio_text_dataset.py**
+
+2. The task of the emotion prediction similar to other tasks such as translation is in the **fairseq/tasks/emotion_prediction.py**
+
+3. The custom architecture of our model similar to roberta,wav2vec is in the **fairseq/models/mulT_emo.py**
+
+4. The cross-attention was implemted by modifying the self attentional scripts in original fairseq repositary. They can be found in **fairseq/modules/transformer_multi_encoder.py** and  **fairseq/modules/transformer_layer.py**
+
+5. Finally the cutom loss function and ebaluation scripts can be found it **fairseq/criterions/emotion_prediction_cri.py**
+
+
+
+# Prerequest models 
+
+### Please use following links to downlaod the pretrained SSL models and save them in a seperate folder named pretrained_ssl.
+
+1. For speech fetures - [VQ-wav2vec](https://github.com/pytorch/fairseq/tree/master/examples/wav2vec) 
+2. For sentence (text) features - [Roberta](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.md)
+
+
+# Preprocessing data.
+
+### We tokenized both speech and text data and then feed in to the algorithm training.
+
+1. For text data, we first tokenized it with Roberta tokenizer and save each example in to seperate text files.
+2. To preprocess speech data please refer the script given in [convert_aud_to_token.py](https://github.com/shamanez/BERT-like-is-All-You-Need/tree/master/SPEECH-BERT-TOKENIZATION).
+3. The preprocessed datasets and their labels can be found in the [this google drive](https://drive.google.com/drive/folders/1oiAiY0QgIpP3Wb9bPfC4hYdGrJ1MmDAP?usp=sharing).
+
+
+
+# Terminal Commands 
+
+We followed the Fairseq terminal commands to train and validate our models.
+
+## Useful commands 
+
+1. --data - folder that contains filenames, sizes and labels of your raw data (please refer to the T_data folder). 
+2. --data-raw - Path of your raw data folder that contains tokenized speech and text.
+3. --binary-target-iemocap - train the model with Iemocap data for binary accuracy.
+4. --regression-target-mos - train the model with CMU-MOSEI/CMU-MOSI data for sentiment score.
+5. For dataset specific traing commands please refer to [emotion_prediction.py](https://github.com/shamanez/BERT-like-is-All-You-Need/blob/master/fairseq/tasks/emotion_prediction.py).
+
+## Training Command
+
+CUDA_VISIBLE_DEVICES=8,7  python train.py --data ./T_data/iemocap --restore-file None  --task emotion_prediction --reset-optimizer --reset-dataloader --reset-meters --init-token 0 --separator-token 2 --arch robertEMO_large --criterion  emotion_prediction_cri  --num-classes 8  --dropout 0.1 --attention-dropout 0.1 --weight-decay 0.1 --optimizer adam --adam-betas "(0.9, 0.98)" --adam-eps 1e-06 --clip-norm 0.0 --lr-scheduler polynomial_decay --lr 1e-05 --total-num-update 2760  --warmup-updates 165  --max-epoch 10 --best-checkpoint-metric loss  --encoder-attention-heads 2 --batch-size 1 --encoder-layers-cross 1   --no-epoch-checkpoints --update-freq 8 --find-unused-parameters --ddp-backend=no_c10d --binary-target-iemocap    --a-only --t-only  --pooler-dropout 0.1  --log-interval 1  --data-raw ./iemocap_data/  
+
+## Validation Command
+
+
+CUDA_VISIBLE_DEVICES=1 python validate.py  --data ./T_data/iemocap   --path './checkpoints/checkpoint_best.pt' --task emotion_prediction --valid-subset test --batch-size 4
+
+
+# Aditional 
+
+If you want to pre-process data again please refer to this [repositary](https://github.com/shamanez/MAIA-Data-Processing).
+
+

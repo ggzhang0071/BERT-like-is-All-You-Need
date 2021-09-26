@@ -1,4 +1,6 @@
+LICENSE
 README.md
+pyproject.toml
 setup.py
 examples/__init__.py
 examples/noisychannel/__init__.py
@@ -66,6 +68,7 @@ fairseq/criterions/binary_cross_entropy.py
 fairseq/criterions/composite_loss.py
 fairseq/criterions/cross_entropy.py
 fairseq/criterions/emotion_prediction_cri.py
+fairseq/criterions/emotion_prediction_semisup_cri.py
 fairseq/criterions/fairseq_criterion.py
 fairseq/criterions/label_smoothed_cross_entropy.py
 fairseq/criterions/label_smoothed_cross_entropy_with_alignment.py
@@ -106,6 +109,7 @@ fairseq/data/plasma_utils.py
 fairseq/data/prepend_dataset.py
 fairseq/data/prepend_token_dataset.py
 fairseq/data/raw_audio_text_dataset.py
+fairseq/data/raw_audio_text_unsup_dataset.py
 fairseq/data/raw_label_dataset.py
 fairseq/data/replace_dataset.py
 fairseq/data/resampling_dataset.py
@@ -173,6 +177,7 @@ fairseq/models/masked_lm.py
 fairseq/models/model_utils.py
 fairseq/models/mult_emo.py
 fairseq/models/multilingual_transformer.py
+fairseq/models/semi_sup_emo.py
 fairseq/models/transformer.py
 fairseq/models/transformer_from_pretrained_xlm.py
 fairseq/models/transformer_lm.py
@@ -266,6 +271,7 @@ fairseq/tasks/audio_pretraining.py
 fairseq/tasks/cross_lingual_lm.py
 fairseq/tasks/denoising.py
 fairseq/tasks/emotion_prediction.py
+fairseq/tasks/emotion_semisup_prediction.py
 fairseq/tasks/fairseq_task.py
 fairseq/tasks/language_modeling.py
 fairseq/tasks/legacy_masked_lm.py

@@ -23,7 +23,7 @@ class EmotionDataPreprocessing():
     
     def __init__(self):
 
-        cp = torch.load('pretrained_ssl/wav2vec_small_10m.pt')
+        cp = torch.load('pretrained_ssl/vq-wav2vec_kmeans.pt',map_location="cpu")
         self.model = Wav2VecModel.build_model(cp['args'], task=None)
         self.model.load_state_dict(cp['model'])
         self.model.eval()
@@ -43,11 +43,9 @@ class EmotionDataPreprocessing():
 
 
     def preprocess_audio_file(self,filename):
-        
-        
         wav, curr_sample_rate = sf.read(filename)
 
-        feats_audio =torch.from_numpy(wav).float()
+        feats_audio =torch.from_numpy(np.mean(wav,axis=1)).float()
         
         #feats_audio =torch.load(filename)#if you direclty using .pt files
         
@@ -83,11 +81,11 @@ class EmotionDataPreprocessing():
                 tokens = self.roberta.task.source_dictionary.encode_line(idx_str, append_eos=True, add_if_not_exist=False).cpu().detach().numpy()
 
         
-                output_file = audio_file.replace('audio','audio_token').replace('.pt','.txt')
+                output_file = audio_file.sub('audio','audio_token').replace('.pt','.txt')
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
                 with open(output_file, 'w') as f:
                     for item in tokens:
-                      
+                       
                         f.write(str(item)+'\t')
                 current_num += 1
                 if current_num>num_items:
@@ -114,7 +112,9 @@ if __name__ == "__main__":
 
     
     # video_path = "/home/1TB/FriendsData/raw_data/FaceVideo/"#/home/1TB/EvanRawData/raw_data/Video_Data/'
-    audio_path = '/hpc/gsir059/IEEE/eval-IEEE-Final/Imo_Multi/T_data/meld/valid/audio/'
-    #text_path = '/hpc/gsir059/IEEE/andrew/Imo_Multi/processed_data/ready/train/'
-    
+    #audio_path = '/hpc/gsir059/IEEE/eval-IEEE-Final/Imo_Multi/T_data/meld/valid/audio/'
+    audio_path="/git/datasets/IEMOCAP_full_release/Session2/dialog/wav/"
+    text_path = '/git/datasets/IEMOCAP_full_release/Session2/dialog/transcriptions/'
     data_processor.preprocess_data(video_path,audio_path,text_path)
+
+'/git/datasets/IEMOCAP_full_release/Session2/dialog/audio_token/Ses02F_impro01.audio_token'

@@ -76,7 +76,7 @@ def main(args, override_args=None):
             max_sentences=args.max_sentences,
             max_positions=utils.resolve_max_positions(
                 task.max_positions(),
-                *[m.max_positions() for m in models],
+                *[m.max_positions() for m in models]
             ),
             ignore_invalid_inputs=args.skip_invalid_size_inputs_valid_test,
             required_batch_size_multiple=args.required_batch_size_multiple,

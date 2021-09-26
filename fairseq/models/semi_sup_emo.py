@@ -55,7 +55,7 @@ class SemiemoModel(FairseqLanguageModel):
 
         if self.args.a_only or self.args.all_in:
            
-            self.roberta_vqwav2vec = RobertaModel.from_pretrained('/hpc/gsir059/INTERSPEECH/MOSI-SEMI/trained_ssl/wav2vec/vq-wav2vec-Kmeans-Roberta',checkpoint_file='bert_kmeans.pt')
+            self.roberta_vqwav2vec = RobertaModel.from_pretrained('pretrained_ssl',checkpoint_file='bert_kmeans.pt')
 
             if self.args.frozen_ssl:
                 for param in self.roberta_vqwav2vec.parameters():

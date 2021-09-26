@@ -1,41 +1,40 @@
 #change the line 331
 
 import os
+
+from pandas.core.indexes.api import all_indexes_same
 import numpy as np
 import sys
 import torch
 
-from fairseq.data import FairseqDataset
+from fairseq.data  import FairseqDataset  
 import random
+import pandas as pd
 
 import cv2
 from PIL import Image
 from torchvision.transforms import CenterCrop, Resize, Compose, ToTensor
+from sklearn.feature_extraction.text import CountVectorizer
 
 import time
 
 class RawAudioTextDataset(FairseqDataset):
-
     def __init__(self, base_path,data_args,data_split,sample_rate, max_sample_size=None, min_sample_size=None,
-                 shuffle=True):
+            shuffle=True):
         super().__init__()
 
         self.data_args=data_args
-
         self.sample_rate = sample_rate
 
         self.fnames_audio = []
         self.fnames_text = []
         self.sizes = []
 
-  
-
         self.labels = {}
 
         self.audio_sizes = {}
         self.text_sizes = {}
 
-     
 
         self.max_sample_size = max_sample_size if max_sample_size is not None else sys.maxsize
         self.min_sample_size = min_sample_size if min_sample_size is not None else self.max_sample_size
@@ -135,6 +134,8 @@ class RawAudioTextDataset(FairseqDataset):
 
                 assert items_a[0].split('.')[0] == items_t[0].split('.')[0] , "misalignment of data"
 
+                
+
 
     
                 emotion = self.labels.get(items_a[0].split('.')[0]) #If the label is not there, gives a none
@@ -212,9 +213,6 @@ class RawAudioTextDataset(FairseqDataset):
     def __getitem__(self, index):
 
 
-        
-
-    
         audio_file = self.fnames_audio[index]
         text_file = self.fnames_text[index]
        
@@ -233,7 +231,50 @@ class RawAudioTextDataset(FairseqDataset):
             label = self.labels.get(file_name)
         else:
             label = self.emotion_dictionary[str(self.labels.get(file_name))]
+        """
+        add custom datasets
+        """
+        xy_train_text= pd.read_csv('/git/datasets/pre-processed_data/data/t2e/text_train.csv')
+        xy_test_text = pd.read_csv('/git/datasets/pre-processed_data/data/t2e/text_test.csv')
+
+        x_train_text=xy_train_text.drop(["wav_file","label"],axis=1).to_numpy()
+        x_test_text=xy_test_text.drop(["wav_file","label"],axis=1).to_numpy().tolist()
+
+        y_train_text = xy_train_text['label']
+        y_test_text = xy_test_text['label']
+
+        x_train_audio = pd.read_csv('/git/datasets/pre-processed_data/data/s2e/audio_train.csv')
+        x_test_audio = pd.read_csv('/git/datasets/pre-processed_data/data/s2e/audio_test.csv')
+
+        x_train_audio=x_train_audio.drop(["wav_file","label"],axis=1).to_numpy()
+        x_test_audio=x_test_audio.drop(["wav_file","label"],axis=1).to_numpy()
+
+
+        cv=CountVectorizer()
+        tokensized_text=None
+        for i in range(len(x_test_text)):
+            print(x_train_text[i])
+            x=cv.fit_transform(x_train_text[i]).toarray()
+            xx=np.expand_dims(x,axis=0)
+            if tokensized_text is None:
+                tokensized_text=xx
+            else:
+                tokensized_text=np.concatenate([tokensized_text,xx],axis=0)
+            print(tokensized_text.shape)
+    
+        tokensized_text = torch.from_numpy(tokensized_text)
+
+
+        y_train_audio = x_train_audio['label']
+        y_test_audio = x_test_audio['label']
    
+        """with open(fname_a, 'r') as f:
+            words = []
+            for line in f:
+                words.extend(line.strip().split('\t'))
+        tokensized_audio = [int(word) for word in words]
+        tokensized_audio = torch.from_numpy(np.array(tokensized_audio))
+        tokensized_text=torch.from_numpy(np.array())
 
 
         # Text data (Roberta Tokens)
@@ -242,16 +283,9 @@ class RawAudioTextDataset(FairseqDataset):
             for line in f:
                 words.extend(line.strip().split('\t'))
         tokensized_text = [int(word) for word in words]
-        tokensized_text = torch.from_numpy(np.array(tokensized_text))
+        tokensized_text = torch.from_numpy(np.array(tokensized_text))"""
 
-        # Text data (Roberta Tokens)
-        with open(fname_a, 'r') as f:
-            words = []
-            for line in f:
-                words.extend(line.strip().split('\t'))
-        tokensized_audio = [int(word) for word in words]
-        tokensized_audio = torch.from_numpy(np.array(tokensized_audio))
-
+       
 
    
         return {
