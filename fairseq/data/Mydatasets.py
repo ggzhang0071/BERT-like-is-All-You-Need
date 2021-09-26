@@ -11,10 +11,23 @@ sys.path.append(".")
 from audio_text_emotion_label import build_audio_vectors,build_text_vectors
 
 
+
+
+
 class MyAudioTextDatasets(torch.utils.data.Dataset):
       'Characterizes a dataset for PyTorch'
-      def __init__(self,data_root,label_path=None,preprocessed=False,sr=44100): 
+      def __init__(self,data_root,labels_path=None,preprocessed=False): 
             'Initialization'  
+            emotion_dict = {'ang': 0,
+                'hap': 1,
+                'exc': 2,
+                'sad': 3,
+                'fru': 4,
+                'fea': 5,
+                'sur': 6,
+                'neu': 7,
+                'xxx': 8,
+                'oth': 8}
             self.audio_vectors=[] 
             self.text_vectors=[]   
             self.y=[]      
@@ -31,11 +44,12 @@ class MyAudioTextDatasets(torch.utils.data.Dataset):
                               for frame_name in intersection_frame_name:
                                     self.audio_vectors.append(audio_vectors[frame_name])
                                     self.text_vectors.append(text_vectors[frame_name])
-                                    self.y.append(emotion[frame_name])
+                                    self.y.append(emotion_dict[emotion[frame_name]])
 
       def __len__(self):
             'Denotes the total number of samples'
-            return len(len(self.y))
+            print(len(self.y))
+            return len(self.y)
 
       def __getitem__(self, idx):
             'Generates one sample of data'
@@ -61,9 +75,39 @@ def collate_fn(batch):
 if __name__=="__main__":
       data_root = '/git/datasets/IEMOCAP_full_release'
       labels_path='data/df_iemocap.csv'
-      test_dataset = MyAudioTextDatasets(data_root=data_root,preprocessed=False,sr=44100)
-      test_dataloader =DataLoader(test_dataset,batch_size=2048)
+      test_dataset = MyAudioTextDatasets(data_root=data_root,label_path=labels_path,preprocessed=False)
+      """test_dataloader =DataLoader(test_dataset,batch_size=2048)
       for i, (wav_vector, text_vector, labels) in enumerate(test_dataloader):
             if i==0:
                   print(wav_vector.shape, text_vector.shape, labels)
-                  break
+                  break"""
+
+
+      batch_size = 2048
+      validation_split = .2
+      shuffle_dataset = True
+      random_seed= 42
+
+      # Creating data indices for training and validation splits:
+      dataset_size = len(test_dataset)
+      indices = list(range(dataset_size))
+      split = int(np.floor(validation_split * dataset_size))
+      if shuffle_dataset :
+            np.random.seed(random_seed)
+            np.random.shuffle(indices)
+      train_indices, val_indices = indices[split:], indices[:split]
+
+      # Creating PT data samplers and loaders:
+      train_sampler = SubsetRandomSampler(train_indices)
+      valid_sampler = SubsetRandomSampler(val_indices)
+
+      train_loader = DataLoader(test_dataset, batch_size=batch_size,sampler=train_sampler)
+      validation_loader = DataLoader(test_dataset, batch_size=batch_size,sampler=valid_sampler)
+
+      # Usage Example:
+      num_epochs = 10
+      for epoch in range(num_epochs):
+            pass
+      # Train:   
+      for batch_index, (faces, labels) in enumerate(train_loader):
+            pass

@@ -88,5 +88,5 @@ if __name__ == "__main__":
     text_path = '/git/datasets/IEMOCAP_full_release/Session2/dialog/transcriptions/'"""
     audio_path="/git/datasets/IEMOCAP_full_release/Session1/dialog/wav/Ses01M_impro02.wav"
     wav, curr_sample_rate = sf.read(audio_path)
-    data_processor.preprocess_audio_data(wav)
+    tokens=data_processor.preprocess_audio_data(np.mean(wav,axis=1))
 

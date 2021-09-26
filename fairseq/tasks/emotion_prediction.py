@@ -6,6 +6,7 @@
 import os,sys
 import logging
 import numpy as np
+from  fairseq.data.Mydatasets import MyAudioTextDatasets
 
 sys.path.append("/git/BERT-like-is-All-You-Need/fairseq/data")
 
@@ -91,14 +92,16 @@ class EmotionPredictionTask(FairseqTask):
 
         
        
-        self.datasets[split] = RawAudioTextDataset(base_path=self.args.data,
+        """self.datasets[split] = RawAudioTextDataset(base_path=self.args.data,
                                                data_args=self.args, 
                                                data_split=split, 
                                                sample_rate=self.args.sample_rate,
                                                max_sample_size=self.args.max_sample_size,
-                                               min_sample_size=self.args.min_sample_size)
-        
+                                               min_sample_size=self.args.min_sample_size)"""
 
+        data_root = '/git/datasets/IEMOCAP_full_release'
+        labels_path='data/df_iemocap.csv'
+        self.datasets[split] = MyAudioTextDatasets(data_root=data_root,labels_path=labels_path,preprocessed=False)
 
       
 
