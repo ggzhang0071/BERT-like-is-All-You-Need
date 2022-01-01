@@ -11,12 +11,9 @@ sys.path.append(".")
 from audio_text_emotion_label import build_audio_vectors,build_text_vectors
 
 
-
-
-
 class MyAudioTextDatasets(torch.utils.data.Dataset):
       'Characterizes a dataset for PyTorch'
-      def __init__(self,data_root,labels_path=None,preprocessed=False): 
+      def __init__(self,data_root,labels_path,preprocessed=False): 
             'Initialization'  
             emotion_dict = {'ang': 0,
                 'hap': 1,
@@ -27,7 +24,7 @@ class MyAudioTextDatasets(torch.utils.data.Dataset):
                 'sur': 6,
                 'neu': 7,
                 'xxx': 8,
-                'oth': 8}
+                'oth': 9}
             self.audio_vectors=[] 
             self.text_vectors=[]   
             self.y=[]      
@@ -74,8 +71,8 @@ def collate_fn(batch):
 
 if __name__=="__main__":
       data_root = '/git/datasets/IEMOCAP_full_release'
-      labels_path='data/df_iemocap.csv'
-      test_dataset = MyAudioTextDatasets(data_root=data_root,label_path=labels_path,preprocessed=False)
+      labels_path='/git/BERT-like-is-All-You-Need/data/df_iemocap.csv'
+      test_dataset = MyAudioTextDatasets(data_root,labels_path,preprocessed=False)
       """test_dataloader =DataLoader(test_dataset,batch_size=2048)
       for i, (wav_vector, text_vector, labels) in enumerate(test_dataloader):
             if i==0:

@@ -1,4 +1,4 @@
-
+#docker_cmd_93.sh
 img="nvcr.io/nvidia/pytorch:21.03-py3"
 
 #img="padim:0.1"

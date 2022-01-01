@@ -21,14 +21,14 @@ class EmotionDataPreprocessing():
     
     def __init__(self):
 
-        cp = torch.load('pretrained_ssl/vq-wav2vec_kmeans.pt',map_location="cpu")
+        cp = torch.load('/git/BERT-like-is-All-You-Need/pretrained_ssl/vq-wav2vec_kmeans.pt',map_location="cpu")
         self.model = Wav2VecModel.build_model(cp['args'], task=None)
         self.model.load_state_dict(cp['model'])
         self.model.eval()
 
 
         #Roberta wav2vec
-        self.roberta = RobertaModel.from_pretrained('pretrained_ssl/roberta.base', checkpoint_file='model.pt')
+        self.roberta = RobertaModel.from_pretrained('/git/BERT-like-is-All-You-Need/pretrained_ssl/roberta.base', checkpoint_file='model.pt')
 
         self.roberta.eval()
 
