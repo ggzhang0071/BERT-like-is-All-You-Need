@@ -15,7 +15,6 @@ import soundfile as sf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-import sys
 from convert_aud_to_token import EmotionDataPreprocessing
 
 
@@ -76,35 +75,34 @@ def build_audio_vectors(base_path,labels_path,data_dir,sr):
     for sess in  range(1,6):# using one session due to memory constraint, can replace [5] with range(1, 6)
         save_vector_file=os.path.join(data_dir,'audio_vectors_{}.pkl'.format(sess))
         save_token_file=os.path.join(data_dir,'audio_tokens_{}.pkl'.format(sess))
-        """if os.path.exists(save_file):
-            continue"""
+        if os.path.exists(save_vector_file) and os.path.exists(save_token_file):
+            continue
         wav_file_path = os.path.join(base_path,'Session{}/dialog/wav/'.format(sess))
         orig_wav_files = os.listdir(wav_file_path)
         for orig_wav_file in tqdm(orig_wav_files):
             if orig_wav_file.startswith("."):
                 continue
-            try:
-                orig_wav_vector, _sr = librosa.load(
-                        wav_file_path + orig_wav_file, sr=sr)
-                orig_wav_file, file_format = orig_wav_file.split('.')
-                for index, row in labels_df[labels_df['wav_file'].str.contains(
-                        orig_wav_file)].iterrows():
+            orig_wav_vector, _sr = librosa.load(wav_file_path + orig_wav_file, sr=sr)
+            orig_wav_file, file_format = orig_wav_file.split('.')
+            for index, row in labels_df[labels_df['wav_file'].str.contains(orig_wav_file)].iterrows():
+                try:
                     start_time, end_time, truncated_wav_file_name, emotion,\
-                        val, act, dom = row['start_time'], row['end_time'],\
-                        row['wav_file'], row['emotion'], row['val'],\
-                        row['act'], row['dom']
+                    val, act, dom = row['start_time'], row['end_time'],\
+                    row['wav_file'], row['emotion'], row['val'],\
+                    row['act'], row['dom']
                     start_frame = math.floor(start_time * sr)
                     end_frame = math.floor(end_time * sr)
+                    if end_frame+1>=len(orig_wav_vector):
+                        continue
                     truncated_wav_vector = orig_wav_vector[start_frame:end_frame + 1]
                     audio_vectors[truncated_wav_file_name] = truncated_wav_vector
-                    
-                
+                        
                     # tokens preprocessing 
                     #wav, curr_sample_rate = sf.read(audio_path)
-                    tokens=data_processor.preprocess_audio_data(np.mean(truncated_wav_vector,axis=1))
+                    tokens=data_processor.preprocess_audio_data(truncated_wav_vector)
                     audio_tokens[truncated_wav_file_name]=tokens
-            except:
-                print('An exception occured for {}'.format(orig_wav_file))
+                except:
+                    print('An exception occured for {}'.format(orig_wav_file))
         with open(save_vector_file, 'wb') as f:
             pickle.dump(audio_vectors, f)
     
@@ -116,14 +114,11 @@ def extract_audio_features(labels_path,data_dir):
     save_audio_feature_file=os.path.join(data_dir,'audio_features.csv') 
     if os.path.exists(save_audio_feature_file):
         return
-    for sess in range(1,6):
-        audio_vectors_path =os.path.join(data_dir,'audio_vectors_{}.pkl'.format(sess)) 
-        audio_tokens_path=os.path.join(data_dir,'audio_tokens_{}.pkl'.format(sess)) 
+    
+    columns = ['wav_file', 'label', 'sig_mean', 'sig_std', 'rmse_mean','rmse_std', 'silence', 'harmonic', 'auto_corr_max', 'auto_corr_std',"tokens"]
+    df_features = pd.DataFrame(columns=columns)
 
-        columns = ['wav_file', 'label', 'sig_mean', 'sig_std', 'rmse_mean','rmse_std', 'silence', 'harmonic', 'auto_corr_max', 'auto_corr_std']
-        df_features = pd.DataFrame(columns=columns)
-
-        emotion_dict = {'ang': 0,
+    emotion_dict = {'ang': 0,
                         'hap': 1,
                         'exc': 2,
                         'sad': 3,
@@ -134,12 +129,15 @@ def extract_audio_features(labels_path,data_dir):
                         'dis': 8,
                         'xxx': 8,
                         'oth': 8}
-        labels_df = pd.read_csv(labels_path)
+    labels_df = pd.read_csv(labels_path)
 
-        for sess in (range(1, 6)):
-            audio_vectors = pickle.load(open('{}{}.pkl'.format(audio_vectors_path, sess), 'rb'))
-            audio_tokens= pickle.load(open('{}{}.pkl'.format(audio_vectors_path, sess), 'rb'))
-            for index, row in tqdm(labels_df[labels_df['wav_file'].str.contains('Ses0{}'.format(sess))].iterrows()):
+    for sess in range(1,6):
+        audio_vectors_path =os.path.join(data_dir,'audio_vectors_{}.pkl'.format(sess)) 
+        audio_tokens_path=os.path.join(data_dir,'audio_tokens_{}.pkl'.format(sess)) 
+
+        audio_vectors = pickle.load(open(audio_vectors_path, 'rb'))
+        audio_tokens= pickle.load(open(audio_tokens_path,'rb'))
+        for index, row in tqdm(labels_df[labels_df['wav_file'].str.contains('Ses0{}'.format(sess))].iterrows()):
                     wav_file_name = row['wav_file']
                     label = emotion_dict[row['emotion']]
                     y = audio_vectors[wav_file_name]

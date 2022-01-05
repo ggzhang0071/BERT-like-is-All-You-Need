@@ -65,8 +65,6 @@ class EmotionDataPreprocessing():
             print(len(audio_files)," audio_files found")
 
             for audio_file in audio_files:
-
-              
                 audio_features = self.preprocess_audio_file(audio_file).unsqueeze(0)
 
                 # wav2vec
@@ -81,7 +79,7 @@ class EmotionDataPreprocessing():
                 tokens = self.roberta.task.source_dictionary.encode_line(idx_str, append_eos=True, add_if_not_exist=False).cpu().detach().numpy()
 
         
-                output_file = audio_file.sub('audio','audio_token').replace('.pt','.txt')
+                output_file = audio_file.sub('audio','audio_token').replace('.wav','.txt')
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
                 with open(output_file, 'w') as f:
                     for item in tokens:
@@ -117,4 +115,3 @@ if __name__ == "__main__":
     text_path = '/git/datasets/IEMOCAP_full_release/Session2/dialog/transcriptions/'
     data_processor.preprocess_data(video_path,audio_path,text_path)
 
-'/git/datasets/IEMOCAP_full_release/Session2/dialog/audio_token/Ses02F_impro01.audio_token'

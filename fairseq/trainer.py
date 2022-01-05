@@ -22,6 +22,7 @@ from fairseq.nan_detector import NanDetector
 from fairseq.optim import lr_scheduler
 
 
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 

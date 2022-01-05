@@ -64,11 +64,11 @@ def load_archive_file(archive_file):
         )
         return None
 
-    if resolved_archive_file == archive_file:
+    """if resolved_archive_file == archive_file:
         logger.info("loading archive file {}".format(archive_file))
     else:
         logger.info("loading archive file {} from cache at {}".format(
-            archive_file, resolved_archive_file))
+            archive_file, resolved_archive_file))"""
 
     # Extract archive to temp dir and replace .tar.bz2 if necessary
     tempdir = None

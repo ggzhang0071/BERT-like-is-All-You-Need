@@ -10,7 +10,8 @@ import glob
 import argparse
 
 import soundfile as sf
-
+"""import sys
+sys.path.append(".")"""
 
 from fairseq.models.wav2vec import Wav2VecModel
 from fairseq.models.roberta import RobertaModel

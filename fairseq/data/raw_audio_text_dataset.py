@@ -1,40 +1,45 @@
 #change the line 331
 
 import os
-
-from pandas.core.indexes.api import all_indexes_same
+#from typing_extensions import TypeGuard
 import numpy as np
 import sys
 import torch
 
 from fairseq.data  import FairseqDataset  
+
 import random
-import pandas as pd
 
 import cv2
 from PIL import Image
 from torchvision.transforms import CenterCrop, Resize, Compose, ToTensor
-from sklearn.feature_extraction.text import CountVectorizer
 
 import time
 
 class RawAudioTextDataset(FairseqDataset):
+
     def __init__(self, base_path,data_args,data_split,sample_rate, max_sample_size=None, min_sample_size=None,
-            shuffle=True):
+                 shuffle=True):
         super().__init__()
 
+      
+
         self.data_args=data_args
+
         self.sample_rate = sample_rate
 
         self.fnames_audio = []
         self.fnames_text = []
         self.sizes = []
 
+  
+
         self.labels = {}
 
         self.audio_sizes = {}
         self.text_sizes = {}
 
+     
 
         self.max_sample_size = max_sample_size if max_sample_size is not None else sys.maxsize
         self.min_sample_size = min_sample_size if min_sample_size is not None else self.max_sample_size
@@ -45,7 +50,8 @@ class RawAudioTextDataset(FairseqDataset):
 
       
 
-        if self.data_args.binary_target_iemocap: 
+        #if self.data_args.binary_target_iemocap: 
+        if 1==1:
         
             included_emotions = ['neu','ang','sad','hap','exc'] # 'exc', IEMOCAP  (Max 5 emotions (only take 4 in prior work))
         
@@ -82,7 +88,7 @@ class RawAudioTextDataset(FairseqDataset):
 
                 items_l = line_l.strip().split(',')
 
-                if self.data_args.regression_target_mos:                
+                if  False:                
                     self.labels[items_l[0].strip()] = np.round(float(items_l[1].strip()),decimals=4)
                 else:
                     self.labels[items_l[0].strip()] = items_l[1].strip() #for the sentiment use 2 from the list else 1
@@ -103,8 +109,9 @@ class RawAudioTextDataset(FairseqDataset):
 
         inter_n=0
         with open(manifest_audio, 'r') as f_a, open(manifest_text, 'r') as f_t:#, open(manifest_label, 'r') as f_l:
-            self.root_dir_a =os.path.join(self.data_args.data_raw , data_split ,'audio_token')     #f_a.readline().strip()
-            self.root_dir_t =os.path.join(self.data_args.data_raw , data_split ,'text')   #f_t.readline().strip()
+            data_raw="/git/datasets/IEMOCAP_full_release/collected_new_files"
+            self.root_dir_a =os.path.join(data_raw, data_split ,'audio_token')     #f_a.readline().strip()
+            self.root_dir_t =os.path.join(data_raw, data_split ,'text')   #f_t.readline().strip()
 
          
 
@@ -134,8 +141,6 @@ class RawAudioTextDataset(FairseqDataset):
 
                 assert items_a[0].split('.')[0] == items_t[0].split('.')[0] , "misalignment of data"
 
-                
-
 
     
                 emotion = self.labels.get(items_a[0].split('.')[0]) #If the label is not there, gives a none
@@ -143,7 +148,7 @@ class RawAudioTextDataset(FairseqDataset):
           
 
 
-                if self.data_args.regression_target_mos:
+                if False:
 
                     if self.data_args.eval_metric:
                         if emotion==0.0:
@@ -153,8 +158,6 @@ class RawAudioTextDataset(FairseqDataset):
                     self.fnames_text.append(items_t[0])
                     self.sizes.append(int(self.audio_sizes.get(items_a[0].split('.')[0])))
                 
-                
-       
          
                 
                 else:
@@ -169,7 +172,7 @@ class RawAudioTextDataset(FairseqDataset):
 
    
 
-        if self.data_args.binary_target_iemocap:
+        if True:
 
             self.emotion_dictionary = { #EMOCAP
                 'neu':0,
@@ -179,7 +182,7 @@ class RawAudioTextDataset(FairseqDataset):
                 'exc':3
             }
 
-        if self.data_args.softmax_target_meld: 
+        if False: 
 
             self.emotion_dictionary = { #MELD
                 'anger'  : 2,
@@ -191,7 +194,7 @@ class RawAudioTextDataset(FairseqDataset):
                 'disgust':6
             }
 
-        if self.data_args.regression_target_mos:
+        if False:
 
             self.emotion_dictionary = {   #modei senti
                 '-3'  : 6,
@@ -212,7 +215,7 @@ class RawAudioTextDataset(FairseqDataset):
 
     def __getitem__(self, index):
 
-
+    
         audio_file = self.fnames_audio[index]
         text_file = self.fnames_text[index]
        
@@ -227,54 +230,11 @@ class RawAudioTextDataset(FairseqDataset):
 
   
 
-        if self.data_args.regression_target_mos:        
+        if False:        
             label = self.labels.get(file_name)
         else:
             label = self.emotion_dictionary[str(self.labels.get(file_name))]
-        """
-        add custom datasets
-        """
-        xy_train_text= pd.read_csv('/git/datasets/pre-processed_data/data/t2e/text_train.csv')
-        xy_test_text = pd.read_csv('/git/datasets/pre-processed_data/data/t2e/text_test.csv')
-
-        x_train_text=xy_train_text.drop(["wav_file","label"],axis=1).to_numpy()
-        x_test_text=xy_test_text.drop(["wav_file","label"],axis=1).to_numpy().tolist()
-
-        y_train_text = xy_train_text['label']
-        y_test_text = xy_test_text['label']
-
-        x_train_audio = pd.read_csv('/git/datasets/pre-processed_data/data/s2e/audio_train.csv')
-        x_test_audio = pd.read_csv('/git/datasets/pre-processed_data/data/s2e/audio_test.csv')
-
-        x_train_audio=x_train_audio.drop(["wav_file","label"],axis=1).to_numpy()
-        x_test_audio=x_test_audio.drop(["wav_file","label"],axis=1).to_numpy()
-
-
-        cv=CountVectorizer()
-        tokensized_text=None
-        for i in range(len(x_test_text)):
-            print(x_train_text[i])
-            x=cv.fit_transform(x_train_text[i]).toarray()
-            xx=np.expand_dims(x,axis=0)
-            if tokensized_text is None:
-                tokensized_text=xx
-            else:
-                tokensized_text=np.concatenate([tokensized_text,xx],axis=0)
-            print(tokensized_text.shape)
-    
-        tokensized_text = torch.from_numpy(tokensized_text)
-
-
-        y_train_audio = x_train_audio['label']
-        y_test_audio = x_test_audio['label']
    
-        """with open(fname_a, 'r') as f:
-            words = []
-            for line in f:
-                words.extend(line.strip().split('\t'))
-        tokensized_audio = [int(word) for word in words]
-        tokensized_audio = torch.from_numpy(np.array(tokensized_audio))
-        tokensized_text=torch.from_numpy(np.array())
 
 
         # Text data (Roberta Tokens)
@@ -283,9 +243,16 @@ class RawAudioTextDataset(FairseqDataset):
             for line in f:
                 words.extend(line.strip().split('\t'))
         tokensized_text = [int(word) for word in words]
-        tokensized_text = torch.from_numpy(np.array(tokensized_text))"""
+        tokensized_text = torch.from_numpy(np.array(tokensized_text))
 
-       
+        # Text data (Roberta Tokens)
+        with open(fname_a, 'r') as f:
+            words = []
+            for line in f:
+                words.extend(line.strip().split('\t'))
+        tokensized_audio = [int(word) for word in words]
+        tokensized_audio = torch.from_numpy(np.array(tokensized_audio))
+
 
    
         return {
@@ -433,3 +400,10 @@ class RawAudioTextDataset(FairseqDataset):
 
         order.append(self.sizes)
         return np.lexsort(order)
+if __name__=="__main__":
+    base_path="/git/BERT-like-is-All-You-Need/T_data/iemocap"
+    data_args="/git/datasets/IEMOCAP_full_release"
+    data_split="train"
+    sample_rate=16000
+    dataset=RawAudioTextDataset(base_path,data_args,data_split,sample_rate, max_sample_size=None, min_sample_size=None,shuffle=True)
+    dataset[0]

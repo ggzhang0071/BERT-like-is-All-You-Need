@@ -62,11 +62,8 @@ class RobertaEMOModel(FairseqLanguageModel):
 
 
         if self.args.t_only or self.args.all_in:
-            roberta = torch.hub.load('pytorch/fairseq', 'roberta.large')
+            roberta = torch.hub.load('pytorch/fairseq:main', 'roberta.large')
             
-
-
-
 
         
             ########################### Freezing pretrained SSL paramtere###################################

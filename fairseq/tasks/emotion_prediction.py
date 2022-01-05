@@ -3,15 +3,17 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import os,sys
+import os
 import logging
+
 import numpy as np
+
+from fairseq.data import (
+    RawAudioTextDataset
+)
+
 from  fairseq.data.Mydatasets import MyAudioTextDatasets
 
-sys.path.append("/git/BERT-like-is-All-You-Need/fairseq/data")
-
-
-from raw_audio_text_dataset import RawAudioTextDataset
 
 from fairseq.tasks import FairseqTask, register_task
 
@@ -92,6 +94,13 @@ class EmotionPredictionTask(FairseqTask):
 
         
        
+        self.datasets[split] = RawAudioTextUnsupDataset(base_path=self.args.data,
+                                               data_args=self.args, 
+                                               data_split=split, 
+                                               sample_rate=self.args.sample_rate,
+                                               max_sample_size=self.args.max_sample_size,
+                                               min_sample_size=self.args.min_sample_size)
+
         """self.datasets[split] = RawAudioTextDataset(base_path=self.args.data,
                                                data_args=self.args, 
                                                data_split=split, 
@@ -99,11 +108,11 @@ class EmotionPredictionTask(FairseqTask):
                                                max_sample_size=self.args.max_sample_size,
                                                min_sample_size=self.args.min_sample_size)"""
 
-        data_root = '/git/datasets/IEMOCAP_full_release'
-        labels_path='data/df_iemocap.csv'
-        self.datasets[split] = MyAudioTextDatasets(data_root=data_root,labels_path=labels_path,preprocessed=False)
 
-      
+        """data_root = '/git/datasets/IEMOCAP_full_release'
+        labels_path='data/df_iemocap.csv'
+        self.datasets[split] = MyAudioTextDatasets(data_root,labels_path,preprocessed=False)"""
+
 
     def build_model(self, args):
         
