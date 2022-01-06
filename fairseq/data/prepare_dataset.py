@@ -80,7 +80,7 @@ def build_audio_vectors(base_path,labels_path,data_dir,sr):
         wav_file_path = os.path.join(base_path,'Session{}/dialog/wav/'.format(sess))
         orig_wav_files = os.listdir(wav_file_path)
         for orig_wav_file in tqdm(orig_wav_files):
-            if orig_wav_file.startswith("."):
+            if orig_wav_file.startswith(".") or not orig_wav_file.endswith(".wav"):
                 continue
             orig_wav_vector, _sr = librosa.load(wav_file_path + orig_wav_file, sr=sr)
             orig_wav_file, file_format = orig_wav_file.split('.')
