@@ -1,3 +1,4 @@
+from gettext import install
 from numpy.lib.function_base import append
 import pandas as pd
 import numpy as np
@@ -16,7 +17,7 @@ from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.feature_selection import SelectFromModel
 from sklearn.utils.class_weight import compute_class_weight
 import itertools
-from IPython.display import display
+#from IPython.display import display
 
 from tensorflow.keras.preprocessing import sequence
 
@@ -109,20 +110,16 @@ emo_keys = list(['ang', 'hap', 'sad', 'fea', 'sur', 'neu'])
 
 rf_classifier = RandomForestClassifier(n_estimators=1200, min_samples_split=25)
 
-"""#选择原始的特征训练
 x_train=x_train.drop(labels="tokens",axis=1)
-x_test=x_test.drop(labels="tokens",axis=1)"""
-
-# 选择token化之后的特征训练
-x_train=convert_tokens_str_to_array(x_train)
-x_test=convert_tokens_str_to_array(x_test)
+x_test=x_test.drop(labels="tokens",axis=1)
 
 
-rf_classifier.fit(x_train, y_train)
+"""x_train=convert_tokens_str_to_array(x_train)
+x_test=convert_tokens_str_to_array(x_test)"""
+
+
+"""rf_classifier.fit(x_train, y_train)
 # Predict
-
-
-# 选择 wav2vec 特征化训练的
 
 pred_probs = rf_classifier.predict_proba(x_test)
 
@@ -131,3 +128,79 @@ display_results(y_test, pred_probs)
 
 with open('pred_probas/rf_classifier.pkl', 'wb') as f:
     pickle.dump(pred_probs, f)
+"""
+
+
+## TPOP
+from sklearn.model_selection import RepeatedStratifiedKFold
+from tpot import TPOTClassifier
+from sklearn.pipeline import make_pipeline
+from tpot.builtins import StackingEstimator
+from imblearn.combine import SMOTETomek
+from  sklearn.ensemble import GradientBoostingClassifier
+from sklearn.naive_bayes import GaussianNB
+smt = SMOTETomek(sampling_strategy='auto')
+
+
+cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
+# define search
+#model = TPOTClassifier(generations=5, population_size=50, cv=cv, scoring='accuracy', verbosity=2, random_state=1, n_jobs=-1)
+model = TPOTClassifier(generations=1, population_size=1, cv=cv, scoring='accuracy', verbosity=2, random_state=1, n_jobs=-1)
+
+# perform the search
+
+x_train, y_train = smt.fit_resample(x_train, y_train)
+model.fit(x_train, y_train)
+exported_pipeline = make_pipeline(
+    StackingEstimator(estimator=GaussianNB()),
+    GradientBoostingClassifier(learning_rate=0.1, max_depth=7, max_features=0.7000000000000001, min_samples_leaf=15, min_samples_split=10, n_estimators=100, subsample=0.9000000000000001)
+)
+results = exported_pipeline.predict(x_test)
+print("the results is:",results)
+
+# export the best model
+model.export('tpot_sonar_best_model.py')
+
+
+"""##  autogluon 
+from autogluon.tabular import TabularPredictor, TabularDataset
+from imblearn.combine import SMOTETomek
+smt = SMOTETomek(ratio='minority')
+
+x_train = pd.read_csv('data/s2e/audio_train.csv')
+x_test = pd.read_csv('data/s2e/audio_test.csv')
+
+print(x_train.shape)
+y_train = x_train['label']
+y_test = x_test['label']
+
+x_train = TabularDataset("data/s2e/audio_train.csv")
+# fit the model
+x_train, y_train = smt.fit_sample(x_train, y_train)
+
+predictor = TabularPredictor(label="label").fit(x_train)
+# make predictions on new data
+x_test = TabularDataset("data/s2e/audio_test.csv")
+prediction = predictor.predict(x_test)"""
+
+## auto-pytorch
+"""from autoPyTorch.api.tabular_classification import TabularClassificationTask
+api = TabularClassificationTask()
+
+api.search(
+    X_train=x_train,
+    y_train=y_train,
+    X_test=x_test,
+    y_test=y_test,
+    optimize_metric='accuracy',
+    total_walltime_limit=500,
+    func_eval_time_limit_secs=100
+)
+
+# Calculate test accuracy
+y_pred = api.predict(x_test)
+score = api.score(y_pred, y_test)
+print("Accuracy score", score)"""
+
+
+
